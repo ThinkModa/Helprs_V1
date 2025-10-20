@@ -93,14 +93,20 @@ export interface Database {
           email: string
           phone: string | null
           avatar_url: string | null
-          role: 'owner' | 'admin' | 'manager' | 'employee'
+          role: 'admin' | 'manager' | 'supervisor' | 'general'
           department: string | null
           job_title: string | null
           employee_id: string | null
+          mobile_number: string | null
+          start_date: string | null
+          position_id: string | null
+          status: 'active' | 'inactive' | 'archived' | 'terminated'
+          profile_picture_url: string | null
           hire_date: string | null
           is_active: boolean
           last_login_at: string | null
           preferences: any
+          metadata: any
           location_coordinates: any | null
           timezone: string
           created_at: string
@@ -116,10 +122,15 @@ export interface Database {
           email: string
           phone?: string | null
           avatar_url?: string | null
-          role: 'owner' | 'admin' | 'manager' | 'employee'
+          role?: 'admin' | 'manager' | 'supervisor' | 'general'
           department?: string | null
           job_title?: string | null
           employee_id?: string | null
+          mobile_number?: string | null
+          start_date?: string | null
+          position_id?: string | null
+          status?: 'active' | 'inactive' | 'archived' | 'terminated'
+          profile_picture_url?: string | null
           hire_date?: string | null
           is_active?: boolean
           last_login_at?: string | null
@@ -139,14 +150,20 @@ export interface Database {
           email?: string
           phone?: string | null
           avatar_url?: string | null
-          role?: 'owner' | 'admin' | 'manager' | 'employee'
+          role?: 'admin' | 'manager' | 'supervisor' | 'general'
           department?: string | null
           job_title?: string | null
           employee_id?: string | null
+          mobile_number?: string | null
+          start_date?: string | null
+          position_id?: string | null
+          status?: 'active' | 'inactive' | 'archived' | 'terminated'
+          profile_picture_url?: string | null
           hire_date?: string | null
           is_active?: boolean
           last_login_at?: string | null
           preferences?: any
+          metadata?: any
           location_coordinates?: any | null
           timezone?: string
           created_at?: string
@@ -830,6 +847,82 @@ export interface Database {
           is_required?: boolean
           sort_order?: number
           created_at?: string
+        }
+      }
+      positions: {
+        Row: {
+          id: string
+          company_id: string
+          name: string
+          description: string | null
+          color: string
+          is_active: boolean
+          sort_order: number
+          metadata: any
+          created_at: string
+          updated_at: string
+          created_by: string | null
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          name: string
+          description?: string | null
+          color?: string
+          is_active?: boolean
+          sort_order?: number
+          metadata?: any
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          name?: string
+          description?: string | null
+          color?: string
+          is_active?: boolean
+          sort_order?: number
+          metadata?: any
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+        }
+      }
+      user_calendar_assignments: {
+        Row: {
+          id: string
+          user_id: string
+          calendar_id: string
+          assigned_at: string
+          assigned_by: string | null
+          is_active: boolean
+          metadata: any
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          calendar_id: string
+          assigned_at?: string
+          assigned_by?: string | null
+          is_active?: boolean
+          metadata?: any
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          calendar_id?: string
+          assigned_at?: string
+          assigned_by?: string | null
+          is_active?: boolean
+          metadata?: any
+          created_at?: string
+          updated_at?: string
         }
       }
     }
