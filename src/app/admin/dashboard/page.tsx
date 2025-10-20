@@ -45,6 +45,7 @@ import { AppointmentsManagement } from '@/components/appointments/AppointmentsMa
 import { FormsManagement } from '@/components/forms/FormsManagement'
 import { InsightsChat } from '@/components/insights/InsightsChat'
 import { TeamsManagement } from '@/components/teams/TeamsManagement'
+import { CustomersManagement } from '@/components/customers/CustomersManagement'
 
 export default function AdminDashboardPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -694,18 +695,19 @@ export default function AdminDashboardPage() {
   }
 
 
-  const renderCompanyCustomers = () => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Customer Management</h3>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Customer
-        </Button>
+  const renderCompanyCustomers = () => {
+    const currentCompanyId = demoCompany === 'Master Template' 
+      ? 'master-template' 
+      : demoCompany === 'The Home Team' 
+        ? 'the-home-team' 
+        : 'primetime-moving'
+    
+    return (
+      <div className="p-6">
+        <CustomersManagement companyId={currentCompanyId} />
       </div>
-      <p className="text-gray-600">Customer management interface coming soon...</p>
-    </div>
-  )
+    )
+  }
 
   const renderCompanyPayments = () => (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
