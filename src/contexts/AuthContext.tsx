@@ -52,7 +52,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data: { user }, error: userError } = await supabase.auth.getUser()
         
         if (userError) {
-          console.error('Error getting user:', userError)
+          // Don't log AuthSessionMissingError as it's expected during initial load
+          if (!userError.message?.includes('Auth session missing')) {
+            console.error('Error getting user:', userError)
+          }
           setLoading(false)
           return
         }
@@ -97,7 +100,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
       } catch (error) {
-        console.error('Error in getUser:', error)
+        // Don't log AuthSessionMissingError as it's expected during initial load
+        if (!error?.message?.includes('Auth session missing')) {
+          console.error('Error in getUser:', error)
+        }
       }
       
       setLoading(false)
@@ -105,59 +111,61 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     getUser()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state change:', event, session?.user?.id)
-        
-        if (session?.user) {
-          setUser(session.user as AuthUser)
+    if (supabase) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          console.log('Auth state change:', event, session?.user?.id)
           
-          try {
-            // Fetch updated profile
-            const { data: profile, error: profileError } = await supabase
-              .from('user_profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single()
+          if (session?.user) {
+            setUser(session.user as AuthUser)
+            
+            try {
+              // Fetch updated profile
+              const { data: profile, error: profileError } = await supabase
+                .from('user_profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single()
 
-            if (profileError) {
-              console.error('Error fetching user profile:', profileError)
-              // If profile doesn't exist, that's okay - user might be in onboarding
-              setProfile(null)
-            } else if (profile) {
-              setProfile(profile)
-              
-              // Fetch company if user has one
-              if (profile.company_id) {
-                const { data: company, error: companyError } = await supabase
-                  .from('companies')
-                  .select('*')
-                  .eq('id', profile.company_id)
-                  .single()
+              if (profileError) {
+                console.error('Error fetching user profile:', profileError)
+                // If profile doesn't exist, that's okay - user might be in onboarding
+                setProfile(null)
+              } else if (profile) {
+                setProfile(profile)
+                
+                // Fetch company if user has one
+                if (profile.company_id) {
+                  const { data: company, error: companyError } = await supabase
+                    .from('companies')
+                    .select('*')
+                    .eq('id', profile.company_id)
+                    .single()
 
-                if (companyError) {
-                  console.error('Error fetching company:', companyError)
-                  setCurrentCompany(null)
-                } else if (company) {
-                  setCurrentCompany(company)
-                  setCurrentRole(profile.role)
+                  if (companyError) {
+                    console.error('Error fetching company:', companyError)
+                    setCurrentCompany(null)
+                  } else if (company) {
+                    setCurrentCompany(company)
+                    setCurrentRole(profile.role)
+                  }
                 }
               }
+            } catch (error) {
+              console.error('Error in auth state change handler:', error)
             }
-          } catch (error) {
-            console.error('Error in auth state change handler:', error)
+          } else {
+            setUser(null)
+            setProfile(null)
+            setCurrentCompany(null)
+            setCurrentRole(null)
           }
-        } else {
-          setUser(null)
-          setProfile(null)
-          setCurrentCompany(null)
-          setCurrentRole(null)
+          setLoading(false)
         }
-        setLoading(false)
-      }
-    )
+      )
 
-    return () => subscription.unsubscribe()
+      return () => subscription.unsubscribe()
+    }
   }, [supabase?.auth])
 
   const signIn = async (email: string, password: string) => {

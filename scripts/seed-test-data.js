@@ -239,7 +239,7 @@ async function seedTestData() {
       homeTeamAdminAuth.email,
       'Home',
       'Admin',
-      'owner',
+      'admin',
       homeTeamCompany.id
     );
     console.log('✅ The Home Team profile created');
@@ -264,7 +264,7 @@ async function seedTestData() {
       primetimeMovingAdminAuth.email,
       'Prime',
       'Admin',
-      'owner',
+      'admin',
       primetimeMovingCompany.id
     );
     console.log('✅ Primetime Moving profile created');
@@ -276,7 +276,7 @@ async function seedTestData() {
       superAdminAuth.email,
       'Super',
       'Admin',
-      'owner'
+      'admin'
     );
     console.log('✅ Super Admin profile created');
 

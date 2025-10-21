@@ -655,7 +655,7 @@ export interface Database {
           created_by?: string | null
         }
       }
-      appointments: {
+      services: {
         Row: {
           id: string
           company_id: string
@@ -674,6 +674,7 @@ export interface Database {
           state: string | null
           zip_code: string | null
           coordinates: any | null
+          customer_id: string | null
           customer_name: string | null
           customer_email: string | null
           customer_phone: string | null
@@ -706,6 +707,7 @@ export interface Database {
           state?: string | null
           zip_code?: string | null
           coordinates?: any | null
+          customer_id?: string | null
           customer_name?: string | null
           customer_email?: string | null
           customer_phone?: string | null
@@ -738,6 +740,7 @@ export interface Database {
           state?: string | null
           zip_code?: string | null
           coordinates?: any | null
+          customer_id?: string | null
           customer_name?: string | null
           customer_email?: string | null
           customer_phone?: string | null
@@ -921,6 +924,358 @@ export interface Database {
           assigned_by?: string | null
           is_active?: boolean
           metadata?: any
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      customers: {
+        Row: {
+          id: string
+          company_id: string
+          first_name: string
+          last_name: string
+          email: string
+          phone: string | null
+          customer_id: string
+          address: string | null
+          city: string | null
+          state: string | null
+          zip_code: string | null
+          status: 'active' | 'inactive' | 'archived'
+          last_job_title: string | null
+          last_job_date: string | null
+          total_jobs: number
+          total_spent: number
+          notes: string | null
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          first_name: string
+          last_name: string
+          email: string
+          phone?: string | null
+          customer_id: string
+          address?: string | null
+          city?: string | null
+          state?: string | null
+          zip_code?: string | null
+          status?: 'active' | 'inactive' | 'archived'
+          last_job_title?: string | null
+          last_job_date?: string | null
+          total_jobs?: number
+          total_spent?: number
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          first_name?: string
+          last_name?: string
+          email?: string
+          phone?: string | null
+          customer_id?: string
+          address?: string | null
+          city?: string | null
+          state?: string | null
+          zip_code?: string | null
+          status?: 'active' | 'inactive' | 'archived'
+          last_job_title?: string | null
+          last_job_date?: string | null
+          total_jobs?: number
+          total_spent?: number
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+      }
+      customer_jobs: {
+        Row: {
+          id: string
+          company_id: string
+          customer_id: string
+          appointment_id: string | null
+          job_title: string
+          job_date: string
+          job_time: string | null
+          duration_hours: number | null
+          location: string | null
+          amount: number
+          status: 'completed' | 'cancelled' | 'pending'
+          rating: number | null
+          review: string | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          customer_id: string
+          appointment_id?: string | null
+          job_title: string
+          job_date: string
+          job_time?: string | null
+          duration_hours?: number | null
+          location?: string | null
+          amount: number
+          status?: 'completed' | 'cancelled' | 'pending'
+          rating?: number | null
+          review?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          customer_id?: string
+          appointment_id?: string | null
+          job_title?: string
+          job_date?: string
+          job_time?: string | null
+          duration_hours?: number | null
+          location?: string | null
+          amount?: number
+          status?: 'completed' | 'cancelled' | 'pending'
+          rating?: number | null
+          review?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      scheduled_appointments: {
+        Row: {
+          id: string
+          company_id: string
+          customer_id: string
+          title: string
+          description: string | null
+          scheduled_date: string
+          start_time: string
+          end_time: string
+          duration_minutes: number
+          location: string | null
+          status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled'
+          required_workers: number
+          assigned_workers: number
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          customer_id: string
+          title: string
+          description?: string | null
+          scheduled_date: string
+          start_time: string
+          end_time: string
+          duration_minutes: number
+          location?: string | null
+          status?: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled'
+          required_workers?: number
+          assigned_workers?: number
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          customer_id?: string
+          title?: string
+          description?: string | null
+          scheduled_date?: string
+          start_time?: string
+          end_time?: string
+          duration_minutes?: number
+          location?: string | null
+          status?: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled'
+          required_workers?: number
+          assigned_workers?: number
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      appointment_services: {
+        Row: {
+          id: string
+          scheduled_appointment_id: string
+          service_id: string
+          quantity: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          scheduled_appointment_id: string
+          service_id: string
+          quantity?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          scheduled_appointment_id?: string
+          service_id?: string
+          quantity?: number
+          created_at?: string
+        }
+      }
+      appointment_workers: {
+        Row: {
+          id: string
+          scheduled_appointment_id: string
+          worker_id: string
+          role: string
+          assigned_at: string
+          assigned_by: string | null
+          is_confirmed: boolean
+          confirmed_at: string | null
+        }
+        Insert: {
+          id?: string
+          scheduled_appointment_id: string
+          worker_id: string
+          role?: string
+          assigned_at?: string
+          assigned_by?: string | null
+          is_confirmed?: boolean
+          confirmed_at?: string | null
+        }
+        Update: {
+          id?: string
+          scheduled_appointment_id?: string
+          worker_id?: string
+          role?: string
+          assigned_at?: string
+          assigned_by?: string | null
+          is_confirmed?: boolean
+          confirmed_at?: string | null
+        }
+      }
+      appointment_forms: {
+        Row: {
+          id: string
+          scheduled_appointment_id: string
+          form_id: string
+          is_required: boolean
+          sort_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          scheduled_appointment_id: string
+          form_id: string
+          is_required?: boolean
+          sort_order?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          scheduled_appointment_id?: string
+          form_id?: string
+          is_required?: boolean
+          sort_order?: number
+          created_at?: string
+        }
+      }
+      appointment_notes: {
+        Row: {
+          id: string
+          scheduled_appointment_id: string
+          note: string
+          note_type: string
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          scheduled_appointment_id: string
+          note: string
+          note_type?: string
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          scheduled_appointment_id?: string
+          note?: string
+          note_type?: string
+          created_by?: string | null
+          created_at?: string
+        }
+      }
+      recurring_appointments: {
+        Row: {
+          id: string
+          company_id: string
+          customer_id: string
+          title: string
+          description: string | null
+          recurrence_pattern: string
+          recurrence_interval: number
+          days_of_week: number[] | null
+          start_date: string
+          end_date: string | null
+          start_time: string
+          duration_minutes: number
+          location: string | null
+          required_workers: number
+          is_active: boolean
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          customer_id: string
+          title: string
+          description?: string | null
+          recurrence_pattern: string
+          recurrence_interval?: number
+          days_of_week?: number[] | null
+          start_date: string
+          end_date?: string | null
+          start_time: string
+          duration_minutes: number
+          location?: string | null
+          required_workers?: number
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          customer_id?: string
+          title?: string
+          description?: string | null
+          recurrence_pattern?: string
+          recurrence_interval?: number
+          days_of_week?: number[] | null
+          start_date?: string
+          end_date?: string | null
+          start_time?: string
+          duration_minutes?: number
+          location?: string | null
+          required_workers?: number
+          is_active?: boolean
+          created_by?: string | null
           created_at?: string
           updated_at?: string
         }

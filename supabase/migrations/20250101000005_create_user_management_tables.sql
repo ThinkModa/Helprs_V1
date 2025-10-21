@@ -55,15 +55,15 @@ CREATE TABLE user_calendar_assignments (
 );
 
 -- Create indexes for better performance
-CREATE INDEX idx_positions_company_id ON positions(company_id);
-CREATE INDEX idx_positions_active ON positions(is_active);
-CREATE INDEX idx_user_profiles_company_id ON user_profiles(company_id);
-CREATE INDEX idx_user_profiles_employee_id ON user_profiles(employee_id);
-CREATE INDEX idx_user_profiles_status ON user_profiles(status);
-CREATE INDEX idx_user_profiles_position_id ON user_profiles(position_id);
-CREATE INDEX idx_user_calendar_assignments_user_id ON user_calendar_assignments(user_id);
-CREATE INDEX idx_user_calendar_assignments_calendar_id ON user_calendar_assignments(calendar_id);
-CREATE INDEX idx_user_calendar_assignments_active ON user_calendar_assignments(is_active);
+CREATE INDEX IF NOT EXISTS idx_positions_company_id ON positions(company_id);
+CREATE INDEX IF NOT EXISTS idx_positions_active ON positions(is_active);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_company_id ON user_profiles(company_id);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_employee_id ON user_profiles(employee_id);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_status ON user_profiles(status);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_position_id ON user_profiles(position_id);
+CREATE INDEX IF NOT EXISTS idx_user_calendar_assignments_user_id ON user_calendar_assignments(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_calendar_assignments_calendar_id ON user_calendar_assignments(calendar_id);
+CREATE INDEX IF NOT EXISTS idx_user_calendar_assignments_active ON user_calendar_assignments(is_active);
 
 -- Create function to generate employee IDs
 CREATE OR REPLACE FUNCTION generate_employee_id(company_uuid UUID)
@@ -79,12 +79,12 @@ BEGIN
   WHERE id = company_uuid;
   
   -- Get the next number for this company
-  SELECT COALESCE(MAX(CAST(SUBSTRING(employee_id FROM '[0-9]+$') AS INTEGER)), 0) + 1
+  SELECT COALESCE(MAX(CAST(SUBSTRING(user_profiles.employee_id FROM '[0-9]+$') AS INTEGER)), 0) + 1
   INTO next_number
   FROM user_profiles 
   WHERE company_id = company_uuid 
-  AND employee_id IS NOT NULL 
-  AND employee_id ~ ('^' || company_prefix || '-[0-9]+$');
+  AND user_profiles.employee_id IS NOT NULL 
+  AND user_profiles.employee_id ~ ('^' || company_prefix || '-[0-9]+$');
   
   -- Format the employee ID
   employee_id := company_prefix || '-' || LPAD(next_number::TEXT, 3, '0');

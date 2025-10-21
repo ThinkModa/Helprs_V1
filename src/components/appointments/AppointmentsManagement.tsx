@@ -27,7 +27,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { AppointmentForm } from './AppointmentForm'
-import { AppointmentService, AppointmentWithDetails } from '@/lib/database/appointments'
+import { ServiceService, ServiceWithDetails } from '@/lib/database/appointments'
+import { createClient } from '@/lib/supabase/client'
 
 interface AppointmentsManagementProps {
   companyId: string
@@ -36,26 +37,34 @@ interface AppointmentsManagementProps {
 export function AppointmentsManagement({ companyId }: AppointmentsManagementProps) {
   console.log('AppointmentsManagement component mounted with companyId:', companyId)
   
-  const [appointments, setAppointments] = useState<AppointmentWithDetails[]>([])
+  const [appointments, setAppointments] = useState<ServiceWithDetails[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState<'title' | 'estimated_cost' | 'created_at'>('title')
   const [showForm, setShowForm] = useState(false)
-  const [editingAppointment, setEditingAppointment] = useState<AppointmentWithDetails | null>(null)
+  const [editingAppointment, setEditingAppointment] = useState<ServiceWithDetails | null>(null)
   const [selectedAppointment, setSelectedAppointment] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'card' | 'grid'>('card')
 
-  const appointmentService = new AppointmentService(null as any) // Will be properly initialized with Supabase client
+  const appointmentService = new ServiceService(createClient())
 
   useEffect(() => {
     console.log('useEffect triggered for companyId:', companyId)
-    // Simulate loading
-    setTimeout(() => {
-      console.log('Setting appointments:', appointmentService['mockAppointments'].length, 'items')
-      setAppointments(appointmentService['mockAppointments'])
-      setLoading(false)
-    }, 1000)
+    loadAppointments()
   }, [companyId])
+
+  const loadAppointments = async () => {
+    setLoading(true)
+    try {
+      const services = await appointmentService.getAppointments(companyId)
+      console.log('Setting appointments:', services.length, 'items')
+      setAppointments(services)
+    } catch (error) {
+      console.error('Error loading appointments:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Close dropdown when clicking elsewhere (simplified approach)
   useEffect(() => {
@@ -148,7 +157,7 @@ export function AppointmentsManagement({ companyId }: AppointmentsManagementProp
     setShowForm(true)
   }
 
-  const handleEditAppointment = (appointment: AppointmentWithDetails) => {
+  const handleEditAppointment = (appointment: ServiceWithDetails) => {
     console.log('Edit appointment clicked:', appointment.title)
     setEditingAppointment(appointment)
     setShowForm(true)
@@ -170,7 +179,7 @@ export function AppointmentsManagement({ companyId }: AppointmentsManagementProp
       ))
     } else {
       // Create new appointment
-      const newAppointment: AppointmentWithDetails = {
+      const newAppointment: ServiceWithDetails = {
         ...appointmentData,
         id: `apt-${Math.random().toString(36).substr(2, 9)}`,
         company_id: companyId,

@@ -8,26 +8,11 @@ import { Card } from '@/components/ui/card'
 import { EditCustomerModal } from './EditCustomerModal'
 import { CustomerHistory } from './CustomerHistory'
 import { AddCustomerModal } from './AddCustomerModal'
+import { CustomerService, CustomerWithStats } from '@/lib/database/customers'
+import { createClient } from '@/lib/supabase/client'
 
-interface Customer {
-  id: string
-  first_name: string
-  last_name: string
-  email: string
-  phone: string | null
-  customer_id: string
-  address: string | null
-  city: string | null
-  state: string | null
-  zip_code: string | null
-  status: 'active' | 'inactive' | 'archived'
-  last_job_title: string | null
-  last_job_date: string | null
-  total_jobs: number
-  total_spent: number
-  avatar_url: string | null
-  notes: string | null
-}
+// Use the CustomerWithStats type from the database service
+type Customer = CustomerWithStats
 
 interface CustomersManagementProps {
   companyId: string
@@ -36,6 +21,7 @@ interface CustomersManagementProps {
 export function CustomersManagement({ companyId }: CustomersManagementProps) {
   const [customers, setCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(true)
+  const [customerService] = useState(() => new CustomerService(createClient()))
   const [searchTerm, setSearchTerm] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
@@ -61,108 +47,16 @@ export function CustomersManagement({ companyId }: CustomersManagementProps) {
     loadCustomers()
   }, [companyId])
 
-  const loadCustomers = () => {
+  const loadCustomers = async () => {
     setLoading(true)
-    // Mock data for demonstration
-    const mockCustomers: Customer[] = [
-      {
-        id: 'cust-001',
-        first_name: 'Sarah',
-        last_name: 'Johnson',
-        email: 'sarah.johnson@email.com',
-        phone: '(555) 123-4567',
-        customer_id: 'CUST-001',
-        address: '123 Main Street',
-        city: 'Springfield',
-        state: 'IL',
-        zip_code: '62701',
-        status: 'active',
-        last_job_title: 'House Cleaning',
-        last_job_date: '2024-01-14',
-        total_jobs: 12,
-        total_spent: 2400.00,
-        avatar_url: 'https://i.pravatar.cc/150?img=1',
-        notes: 'Prefers morning appointments. Has two cats.'
-      },
-      {
-        id: 'cust-002',
-        first_name: 'Michael',
-        last_name: 'Chen',
-        email: 'michael.chen@email.com',
-        phone: '(555) 234-5678',
-        customer_id: 'CUST-002',
-        address: '456 Oak Avenue',
-        city: 'Springfield',
-        state: 'IL',
-        zip_code: '62702',
-        status: 'active',
-        last_job_title: 'Office Cleaning',
-        last_job_date: '2024-01-09',
-        total_jobs: 8,
-        total_spent: 1600.00,
-        avatar_url: 'https://i.pravatar.cc/150?img=2',
-        notes: 'Only available on weekends.'
-      },
-      {
-        id: 'cust-003',
-        first_name: 'Emily',
-        last_name: 'Rodriguez',
-        email: 'emily.rodriguez@email.com',
-        phone: '(555) 345-6789',
-        customer_id: 'CUST-003',
-        address: '789 Pine Street',
-        city: 'Springfield',
-        state: 'IL',
-        zip_code: '62703',
-        status: 'inactive',
-        last_job_title: 'Deep Cleaning',
-        last_job_date: '2023-12-19',
-        total_jobs: 3,
-        total_spent: 450.00,
-        avatar_url: 'https://i.pravatar.cc/150?img=3',
-        notes: 'Moved to new location.'
-      },
-      {
-        id: 'cust-004',
-        first_name: 'David',
-        last_name: 'Thompson',
-        email: 'david.thompson@email.com',
-        phone: '(555) 456-7890',
-        customer_id: 'CUST-004',
-        address: '321 Elm Street',
-        city: 'Springfield',
-        state: 'IL',
-        zip_code: '62704',
-        status: 'active',
-        last_job_title: 'Window Cleaning',
-        last_job_date: '2024-01-07',
-        total_jobs: 15,
-        total_spent: 3000.00,
-        avatar_url: 'https://i.pravatar.cc/150?img=4',
-        notes: 'Always pays on time.'
-      },
-      {
-        id: 'cust-005',
-        first_name: 'Lisa',
-        last_name: 'Anderson',
-        email: 'lisa.anderson@email.com',
-        phone: '(555) 567-8901',
-        customer_id: 'CUST-005',
-        address: '654 Maple Drive',
-        city: 'Springfield',
-        state: 'IL',
-        zip_code: '62705',
-        status: 'archived',
-        last_job_title: 'Carpet Cleaning',
-        last_job_date: '2023-11-29',
-        total_jobs: 5,
-        total_spent: 750.00,
-        avatar_url: 'https://i.pravatar.cc/150?img=5',
-        notes: 'Moved out of state.'
-      },
-    ]
-    setCustomers(mockCustomers)
-    setLoading(false)
+    try {
+      const customersData = await customerService.getCustomers(companyId)
+      setCustomers(customersData)
+    } catch (error) {
+      console.error('Error loading customers:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   // Enhanced filtering logic
@@ -212,12 +106,14 @@ export function CustomersManagement({ companyId }: CustomersManagementProps) {
   const handleBulkStatusChange = async (newStatus: string) => {
     setBulkActionLoading(true)
     try {
-      const updatedCustomers = customers.map(customer => 
-        selectedCustomers.has(customer.id) 
-          ? { ...customer, status: newStatus as any }
-          : customer
+      const updatePromises = Array.from(selectedCustomers).map(customerId =>
+        customerService.updateCustomer(customerId, { status: newStatus as any })
       )
-      setCustomers(updatedCustomers)
+      
+      await Promise.all(updatePromises)
+      
+      // Reload customers to get updated data
+      await loadCustomers()
       setSelectedCustomers(new Set())
       setShowBulkActions(false)
     } catch (error) {
@@ -234,8 +130,14 @@ export function CustomersManagement({ companyId }: CustomersManagementProps) {
     
     setBulkActionLoading(true)
     try {
-      const updatedCustomers = customers.filter(customer => !selectedCustomers.has(customer.id))
-      setCustomers(updatedCustomers)
+      const deletePromises = Array.from(selectedCustomers).map(customerId =>
+        customerService.deleteCustomer(customerId)
+      )
+      
+      await Promise.all(deletePromises)
+      
+      // Reload customers to get updated data
+      await loadCustomers()
       setSelectedCustomers(new Set())
       setShowBulkActions(false)
     } catch (error) {
@@ -289,14 +191,40 @@ export function CustomersManagement({ companyId }: CustomersManagementProps) {
     setSelectedCustomer(null)
   }
 
-  const handleDeleteCustomer = (customerId: string) => {
+  const handleDeleteCustomer = async (customerId: string) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
-      setCustomers(customers.filter(c => c.id !== customerId))
+      try {
+        const success = await customerService.deleteCustomer(customerId)
+        if (success) {
+          setCustomers(customers.filter(c => c.id !== customerId))
+        }
+      } catch (error) {
+        console.error('Error deleting customer:', error)
+      }
     }
   }
 
-  const handleCustomerCreated = (newCustomer: Customer) => {
-    setCustomers([...customers, newCustomer])
+  const handleCustomerCreated = async (newCustomer: Customer) => {
+    try {
+      const createdCustomer = await customerService.createCustomer({
+        company_id: companyId,
+        first_name: newCustomer.first_name,
+        last_name: newCustomer.last_name,
+        email: newCustomer.email,
+        phone: newCustomer.phone,
+        customer_id: newCustomer.customer_id,
+        address: newCustomer.address,
+        city: newCustomer.city,
+        state: newCustomer.state,
+        zip_code: newCustomer.zip_code,
+        status: newCustomer.status,
+        notes: newCustomer.notes,
+        created_by: 'current-user-id', // This would come from auth context
+      })
+      setCustomers([...customers, createdCustomer])
+    } catch (error) {
+      console.error('Error creating customer:', error)
+    }
   }
 
   const formatCurrency = (amount: number) => {
@@ -545,15 +473,7 @@ export function CustomersManagement({ companyId }: CustomersManagementProps) {
                   <td className="py-4 px-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                        {customer.avatar_url ? (
-                          <img
-                            src={customer.avatar_url}
-                            alt={`${customer.first_name} ${customer.last_name}`}
-                            className="w-10 h-10 rounded-full object-cover"
-                          />
-                        ) : (
-                          <User className="w-5 h-5 text-gray-500" />
-                        )}
+                        <User className="w-5 h-5 text-gray-500" />
                       </div>
                       <div>
                         <div className="font-medium text-gray-900">
@@ -648,6 +568,7 @@ export function CustomersManagement({ companyId }: CustomersManagementProps) {
           isOpen={showAddCustomerModal}
           onClose={() => setShowAddCustomerModal(false)}
           onCustomerCreated={handleCustomerCreated}
+          companyId={companyId}
         />
       )}
 

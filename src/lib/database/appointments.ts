@@ -3,19 +3,31 @@
 import { createClient } from '@/lib/supabase/client'
 import { Database } from '@/types/database'
 
-export type Appointment = Database['public']['Tables']['appointments']['Row']
-export type AppointmentInsert = Database['public']['Tables']['appointments']['Insert']
-export type AppointmentUpdate = Database['public']['Tables']['appointments']['Update']
+export type Service = Database['public']['Tables']['services']['Row']
+export type ServiceInsert = Database['public']['Tables']['services']['Insert']
+export type ServiceUpdate = Database['public']['Tables']['services']['Update']
 
-// Extend Appointment type to include related data for UI display
-export interface AppointmentWithDetails extends Appointment {
-  assigned_worker_name?: string
-  assigned_team_name?: string
+export type ScheduledAppointment = Database['public']['Tables']['scheduled_appointments']['Row']
+export type ScheduledAppointmentInsert = Database['public']['Tables']['scheduled_appointments']['Insert']
+export type ScheduledAppointmentUpdate = Database['public']['Tables']['scheduled_appointments']['Update']
+
+// Extend Service type to include related data for UI display
+export interface ServiceWithDetails extends Service {
   calendar_names?: string[]
   form_names?: string[]
 }
 
-export class AppointmentService {
+// Extend ScheduledAppointment type to include related data for UI display
+export interface ScheduledAppointmentWithDetails extends ScheduledAppointment {
+  customer_name?: string
+  customer_email?: string
+  customer_phone?: string
+  assigned_worker_names?: string[]
+  service_names?: string[]
+  form_names?: string[]
+}
+
+export class ServiceService {
   private supabase: ReturnType<typeof createClient>
 
   constructor(supabaseClient: ReturnType<typeof createClient>) {
@@ -23,7 +35,7 @@ export class AppointmentService {
   }
 
   // Mock data for demonstration purposes
-  private mockAppointments: AppointmentWithDetails[] = [
+  private mockServices: ServiceWithDetails[] = [
     {
       id: 'apt-001',
       company_id: 'master-template',
@@ -203,21 +215,93 @@ export class AppointmentService {
       assigned_team_name: null,
       calendar_names: ['House Cleaning Team', 'Office Cleaning Team', 'Downtown Area'],
       form_names: ['Window Cleaning Checklist']
+    },
+    {
+      id: 'apt-007',
+      company_id: 'master-template',
+      title: 'Carpet Cleaning',
+      description: 'Deep carpet cleaning and stain removal for residential and commercial spaces',
+      appointment_type: 'service',
+      status: 'scheduled',
+      priority: 'medium',
+      scheduled_start: new Date().toISOString(),
+      scheduled_end: new Date().toISOString(),
+      actual_start: null,
+      actual_end: null,
+      location_name: null,
+      address: null,
+      city: null,
+      state: null,
+      zip_code: null,
+      coordinates: null,
+      customer_name: null,
+      customer_email: null,
+      customer_phone: null,
+      assigned_worker_id: null,
+      assigned_team_id: null,
+      estimated_cost: 200.00,
+      actual_cost: null,
+      currency: 'USD',
+      metadata: { pricing_type: 'fixed', duration: '3 hours', is_private: false },
+      notes: 'Professional carpet cleaning with eco-friendly products',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      created_by: 'user-master-admin',
+      assigned_worker_name: null,
+      assigned_team_name: null,
+      calendar_names: ['House Cleaning Team', 'Residential Services'],
+      form_names: ['Carpet Cleaning Checklist', 'Customer Satisfaction Survey']
+    },
+    {
+      id: 'apt-006',
+      company_id: 'master-template',
+      title: 'Move-In/Move-Out Cleaning',
+      description: 'Comprehensive cleaning service for move-in and move-out situations',
+      appointment_type: 'service',
+      status: 'scheduled',
+      priority: 'high',
+      scheduled_start: new Date().toISOString(),
+      scheduled_end: new Date().toISOString(),
+      actual_start: null,
+      actual_end: null,
+      location_name: null,
+      address: null,
+      city: null,
+      state: null,
+      zip_code: null,
+      coordinates: null,
+      customer_name: null,
+      customer_email: null,
+      customer_phone: null,
+      assigned_worker_id: null,
+      assigned_team_id: null,
+      estimated_cost: 300.00,
+      actual_cost: null,
+      currency: 'USD',
+      metadata: { pricing_type: 'fixed', duration: '4 hours', is_private: false },
+      notes: 'Complete deep cleaning for property transitions',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      created_by: 'user-master-admin',
+      assigned_worker_name: null,
+      assigned_team_name: null,
+      calendar_names: ['House Cleaning Team', 'Residential Services', 'North Side'],
+      form_names: ['Move-In/Move-Out Checklist', 'Property Condition Report']
     }
   ]
 
-  async getAppointments(companyId: string): Promise<AppointmentWithDetails[]> {
+  async getAppointments(companyId: string): Promise<ServiceWithDetails[]> {
     // In a real application, you would fetch from Supabase
     // For now, filter mock data by companyId
-    return this.mockAppointments.filter(apt => apt.company_id === companyId)
+    return this.mockServices.filter(service => service.company_id === companyId)
   }
 
-  async getAppointmentById(id: string, companyId: string): Promise<AppointmentWithDetails | null> {
-    return this.mockAppointments.find(apt => apt.id === id && apt.company_id === companyId) || null
+  async getAppointmentById(id: string, companyId: string): Promise<ServiceWithDetails | null> {
+    return this.mockServices.find(service => service.id === id && service.company_id === companyId) || null
   }
 
-  async createAppointment(appointment: AppointmentInsert): Promise<AppointmentWithDetails> {
-    const newAppointment: AppointmentWithDetails = {
+  async createAppointment(appointment: ServiceInsert): Promise<ServiceWithDetails> {
+    const newAppointment: ServiceWithDetails = {
       ...appointment,
       id: `apt-${Math.random().toString(36).substr(2, 9)}`, // Generate a mock ID
       created_at: new Date().toISOString(),
@@ -228,27 +312,27 @@ export class AppointmentService {
       calendar_names: [],
       form_names: []
     }
-    this.mockAppointments.push(newAppointment)
+    this.mockServices.push(newAppointment)
     return newAppointment
   }
 
-  async updateAppointment(id: string, appointment: AppointmentUpdate): Promise<AppointmentWithDetails | null> {
-    const index = this.mockAppointments.findIndex(apt => apt.id === id)
+  async updateAppointment(id: string, appointment: ServiceUpdate): Promise<ServiceWithDetails | null> {
+    const index = this.mockServices.findIndex(service => service.id === id)
     if (index > -1) {
-      this.mockAppointments[index] = {
-        ...this.mockAppointments[index],
+      this.mockServices[index] = {
+        ...this.mockServices[index],
         ...appointment,
         updated_at: new Date().toISOString(),
       }
-      return this.mockAppointments[index]
+      return this.mockServices[index]
     }
     return null
   }
 
   async deleteAppointment(id: string): Promise<boolean> {
-    const initialLength = this.mockAppointments.length
-    this.mockAppointments = this.mockAppointments.filter(apt => apt.id !== id)
-    return this.mockAppointments.length < initialLength
+    const initialLength = this.mockServices.length
+    this.mockServices = this.mockServices.filter(service => service.id !== id)
+    return this.mockServices.length < initialLength
   }
 
   // Helper methods for status and priority management

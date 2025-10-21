@@ -5,10 +5,10 @@ import { ArrowLeft, Save, X, Calendar, Clock, MapPin, User, Phone, Mail, DollarS
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import { AppointmentWithDetails } from '@/lib/database/appointments'
+import { ServiceWithDetails } from '@/lib/database/appointments'
 
 interface AppointmentFormProps {
-  appointment?: AppointmentWithDetails | null
+  appointment?: ServiceWithDetails | null
   onSubmit: (data: any) => void
   onCancel: () => void
 }

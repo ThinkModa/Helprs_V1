@@ -46,6 +46,7 @@ import { FormsManagement } from '@/components/forms/FormsManagement'
 import { InsightsChat } from '@/components/insights/InsightsChat'
 import { TeamsManagement } from '@/components/teams/TeamsManagement'
 import { CustomersManagement } from '@/components/customers/CustomersManagement'
+import { CalendarView } from '@/components/scheduling/CalendarView'
 
 export default function AdminDashboardPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -632,18 +633,22 @@ export default function AdminDashboardPage() {
     )
   }
 
-  const renderCompanySchedule = () => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Schedule Management</h3>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-          <Plus className="w-4 h-4 mr-2" />
-          Create Schedule
-        </Button>
+  const renderCompanySchedule = () => {
+    // Get the current company ID for the demo
+    const currentCompanyId = demoCompany === 'Master Template' 
+      ? 'master-template' 
+      : demoCompany === 'The Home Team' 
+        ? 'the-home-team' 
+        : demoCompany === 'Primetime Moving'
+          ? 'primetime-moving'
+          : 'default-company'
+
+    return (
+      <div className="h-full">
+        <CalendarView companyId={currentCompanyId} />
       </div>
-      <p className="text-gray-600">Schedule management interface coming soon...</p>
-    </div>
-  )
+    )
+  }
 
   const renderCompanyCalendars = () => {
     // Get the current company ID for the demo

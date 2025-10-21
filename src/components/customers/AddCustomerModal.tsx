@@ -4,6 +4,8 @@ import React, { useState } from 'react'
 import { X, User, Mail, MapPin, Phone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { CustomerService } from '@/lib/database/customers'
+import { createClient } from '@/lib/supabase/client'
 
 interface Customer {
   id: string
@@ -29,9 +31,10 @@ interface AddCustomerModalProps {
   isOpen: boolean
   onClose: () => void
   onCustomerCreated: (customer: Customer) => void
+  companyId: string
 }
 
-export function AddCustomerModal({ isOpen, onClose, onCustomerCreated }: AddCustomerModalProps) {
+export function AddCustomerModal({ isOpen, onClose, onCustomerCreated, companyId }: AddCustomerModalProps) {
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -44,6 +47,7 @@ export function AddCustomerModal({ isOpen, onClose, onCustomerCreated }: AddCust
     notes: ''
   })
   const [loading, setLoading] = useState(false)
+  const [customerService] = useState(() => new CustomerService(createClient()))
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -54,8 +58,8 @@ export function AddCustomerModal({ isOpen, onClose, onCustomerCreated }: AddCust
     setLoading(true)
 
     try {
-      // Generate customer ID
-      const customerId = `CUST-${String(Date.now()).slice(-3)}`
+      // Generate customer ID using the service
+      const customerId = await customerService.generateCustomerId(companyId)
       
       const newCustomer: Customer = {
         id: `cust-${Date.now()}`,
@@ -73,8 +77,13 @@ export function AddCustomerModal({ isOpen, onClose, onCustomerCreated }: AddCust
         last_job_date: null,
         total_jobs: 0,
         total_spent: 0,
-        avatar_url: null,
-        notes: formData.notes || null
+        notes: formData.notes || null,
+        company_id: companyId,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        created_by: 'current-user-id',
+        updated_by: null,
+        job_count: 0,
       }
 
       onCustomerCreated(newCustomer)
