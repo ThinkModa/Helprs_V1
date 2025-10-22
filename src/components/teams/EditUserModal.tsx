@@ -35,6 +35,8 @@ interface FormData {
   // Step 3: Wages
   wageType: 'salary' | 'hourly'
   wageAmount: string
+  paymentPreference: 'per_job' | 'weekly' | 'bi_weekly'
+  paymentDayOfWeek: number | null
   
   // Step 4: Time Off
   vacationDays: string
@@ -76,7 +78,8 @@ export function EditUserModal({ isOpen, onClose, onUserUpdated, user, companyId,
     calendarIds: [],
     wageType: 'hourly',
     wageAmount: '',
-    paymentFrequency: 'bi-weekly',
+    paymentPreference: 'weekly',
+    paymentDayOfWeek: 5, // Friday
     vacationDays: '10',
     sickDays: '5',
     personalDays: '3',
@@ -103,8 +106,10 @@ export function EditUserModal({ isOpen, onClose, onUserUpdated, user, companyId,
         role: user.role,
         positionId: user.position_id || '',
         calendarIds: user.assigned_calendars?.map(cal => cal.id) || [],
-        wageType: (user.metadata as any)?.wageType || 'hourly',
-        wageAmount: (user.metadata as any)?.wageAmount || '',
+        wageType: user.wage_type || 'hourly',
+        wageAmount: user.hourly_rate?.toString() || user.salary_amount?.toString() || '',
+        paymentPreference: user.payment_preference || 'weekly',
+        paymentDayOfWeek: user.payment_day_of_week || 5,
         vacationDays: (user.metadata as any)?.vacationDays || '10',
         sickDays: (user.metadata as any)?.sickDays || '5',
         personalDays: (user.metadata as any)?.personalDays || '3',
@@ -152,10 +157,13 @@ export function EditUserModal({ isOpen, onClose, onUserUpdated, user, companyId,
         status: formData.status,
         start_date: formData.startDate,
         hire_date: formData.hireDate,
+        wage_type: formData.wageType,
+        hourly_rate: formData.wageType === 'hourly' ? parseFloat(formData.wageAmount) : null,
+        salary_amount: formData.wageType === 'salary' ? parseFloat(formData.wageAmount) : null,
+        payment_preference: formData.paymentPreference,
+        payment_day_of_week: formData.paymentDayOfWeek,
         metadata: {
           ...user.metadata,
-          wageType: formData.wageType,
-          wageAmount: formData.wageAmount,
           vacationDays: formData.vacationDays,
           sickDays: formData.sickDays,
           personalDays: formData.personalDays,
@@ -402,6 +410,38 @@ export function EditUserModal({ isOpen, onClose, onUserUpdated, user, companyId,
                 />
               </div>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Payment Preference *</label>
+              <select
+                value={formData.paymentPreference}
+                onChange={(e) => handleInputChange('paymentPreference', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="per_job">Per Job</option>
+                <option value="weekly">Weekly</option>
+                <option value="bi_weekly">Bi-Weekly</option>
+              </select>
+            </div>
+
+            {(formData.paymentPreference === 'weekly' || formData.paymentPreference === 'bi_weekly') && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Payment Day *</label>
+                <select
+                  value={formData.paymentDayOfWeek || ''}
+                  onChange={(e) => handleInputChange('paymentDayOfWeek', parseInt(e.target.value))}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="0">Sunday</option>
+                  <option value="1">Monday</option>
+                  <option value="2">Tuesday</option>
+                  <option value="3">Wednesday</option>
+                  <option value="4">Thursday</option>
+                  <option value="5">Friday</option>
+                  <option value="6">Saturday</option>
+                </select>
+              </div>
+            )}
 
           </div>
         )

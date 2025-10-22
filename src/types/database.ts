@@ -109,6 +109,11 @@ export interface Database {
           metadata: any
           location_coordinates: any | null
           timezone: string
+          wage_type: 'hourly' | 'salary'
+          hourly_rate: number | null
+          salary_amount: number | null
+          payment_preference: 'per_job' | 'weekly' | 'bi_weekly'
+          payment_day_of_week: number | null
           created_at: string
           updated_at: string
           created_by: string | null
@@ -137,6 +142,11 @@ export interface Database {
           preferences?: any
           location_coordinates?: any | null
           timezone?: string
+          wage_type?: 'hourly' | 'salary'
+          hourly_rate?: number | null
+          salary_amount?: number | null
+          payment_preference?: 'per_job' | 'weekly' | 'bi_weekly'
+          payment_day_of_week?: number | null
           created_at?: string
           updated_at?: string
           created_by?: string | null
@@ -166,6 +176,11 @@ export interface Database {
           metadata?: any
           location_coordinates?: any | null
           timezone?: string
+          wage_type?: 'hourly' | 'salary'
+          hourly_rate?: number | null
+          salary_amount?: number | null
+          payment_preference?: 'per_job' | 'weekly' | 'bi_weekly'
+          payment_day_of_week?: number | null
           created_at?: string
           updated_at?: string
           created_by?: string | null
@@ -685,6 +700,10 @@ export interface Database {
           currency: string
           metadata: any
           notes: string | null
+          requires_deposit: boolean
+          deposit_amount: number | null
+          deposit_type: 'fixed' | 'percentage' | null
+          pricing_type: 'hourly' | 'fixed'
           created_at: string
           updated_at: string
           created_by: string | null
@@ -718,6 +737,10 @@ export interface Database {
           currency?: string
           metadata?: any
           notes?: string | null
+          requires_deposit?: boolean
+          deposit_amount?: number | null
+          deposit_type?: 'fixed' | 'percentage' | null
+          pricing_type?: 'hourly' | 'fixed'
           created_at?: string
           updated_at?: string
           created_by?: string | null
@@ -751,6 +774,10 @@ export interface Database {
           currency?: string
           metadata?: any
           notes?: string | null
+          requires_deposit?: boolean
+          deposit_amount?: number | null
+          deposit_type?: 'fixed' | 'percentage' | null
+          pricing_type?: 'hourly' | 'fixed'
           created_at?: string
           updated_at?: string
           created_by?: string | null
@@ -1070,6 +1097,14 @@ export interface Database {
           status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled'
           required_workers: number
           assigned_workers: number
+          deposit_paid: boolean
+          deposit_transaction_id: string | null
+          final_payment_status: 'pending' | 'approved' | 'paid' | 'disputed'
+          final_payment_transaction_id: string | null
+          estimated_cost: number | null
+          actual_cost: number | null
+          customer_approved_hours: boolean
+          customer_approved_at: string | null
           created_by: string | null
           created_at: string
           updated_at: string
@@ -1088,6 +1123,14 @@ export interface Database {
           status?: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled'
           required_workers?: number
           assigned_workers?: number
+          deposit_paid?: boolean
+          deposit_transaction_id?: string | null
+          final_payment_status?: 'pending' | 'approved' | 'paid' | 'disputed'
+          final_payment_transaction_id?: string | null
+          estimated_cost?: number | null
+          actual_cost?: number | null
+          customer_approved_hours?: boolean
+          customer_approved_at?: string | null
           created_by?: string | null
           created_at?: string
           updated_at?: string
@@ -1106,6 +1149,14 @@ export interface Database {
           status?: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled'
           required_workers?: number
           assigned_workers?: number
+          deposit_paid?: boolean
+          deposit_transaction_id?: string | null
+          final_payment_status?: 'pending' | 'approved' | 'paid' | 'disputed'
+          final_payment_transaction_id?: string | null
+          estimated_cost?: number | null
+          actual_cost?: number | null
+          customer_approved_hours?: boolean
+          customer_approved_at?: string | null
           created_by?: string | null
           created_at?: string
           updated_at?: string
@@ -1276,6 +1327,285 @@ export interface Database {
           required_workers?: number
           is_active?: boolean
           created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      company_payment_settings: {
+        Row: {
+          id: string
+          company_id: string
+          stripe_account_id: string | null
+          stripe_account_status: 'pending' | 'active' | 'restricted' | 'rejected'
+          platform_fee_percentage: number
+          payout_schedule: 'daily' | 'weekly' | 'monthly'
+          auto_pay_workers: boolean
+          allow_worker_payment_preference: boolean
+          default_worker_payment_schedule: 'per_job' | 'weekly' | 'bi_weekly'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          stripe_account_id?: string | null
+          stripe_account_status?: 'pending' | 'active' | 'restricted' | 'rejected'
+          platform_fee_percentage?: number
+          payout_schedule?: 'daily' | 'weekly' | 'monthly'
+          auto_pay_workers?: boolean
+          allow_worker_payment_preference?: boolean
+          default_worker_payment_schedule?: 'per_job' | 'weekly' | 'bi_weekly'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          stripe_account_id?: string | null
+          stripe_account_status?: 'pending' | 'active' | 'restricted' | 'rejected'
+          platform_fee_percentage?: number
+          payout_schedule?: 'daily' | 'weekly' | 'monthly'
+          auto_pay_workers?: boolean
+          allow_worker_payment_preference?: boolean
+          default_worker_payment_schedule?: 'per_job' | 'weekly' | 'bi_weekly'
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      worker_payment_settings: {
+        Row: {
+          id: string
+          worker_id: string
+          company_id: string
+          stripe_account_id: string | null
+          bank_account_verified: boolean
+          payout_method: 'bank_account' | 'debit_card'
+          tax_form_completed: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          worker_id: string
+          company_id: string
+          stripe_account_id?: string | null
+          bank_account_verified?: boolean
+          payout_method?: 'bank_account' | 'debit_card'
+          tax_form_completed?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          worker_id?: string
+          company_id?: string
+          stripe_account_id?: string | null
+          bank_account_verified?: boolean
+          payout_method?: 'bank_account' | 'debit_card'
+          tax_form_completed?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      payment_transactions: {
+        Row: {
+          id: string
+          company_id: string
+          transaction_type: 'customer_payment' | 'worker_payout' | 'refund' | 'chargeback'
+          stripe_payment_intent_id: string | null
+          stripe_transfer_id: string | null
+          stripe_charge_id: string | null
+          customer_id: string | null
+          appointment_id: string | null
+          worker_id: string | null
+          gross_amount: number
+          platform_fee: number
+          stripe_fee: number
+          net_amount: number
+          status: 'pending' | 'succeeded' | 'failed' | 'refunded' | 'disputed'
+          currency: string
+          description: string | null
+          metadata: any
+          time_entry_id: string | null
+          is_deposit: boolean
+          is_final_payment: boolean
+          aggregation_period_start: string | null
+          aggregation_period_end: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          transaction_type: 'customer_payment' | 'worker_payout' | 'refund' | 'chargeback'
+          stripe_payment_intent_id?: string | null
+          stripe_transfer_id?: string | null
+          stripe_charge_id?: string | null
+          customer_id?: string | null
+          appointment_id?: string | null
+          worker_id?: string | null
+          gross_amount: number
+          platform_fee?: number
+          stripe_fee?: number
+          net_amount: number
+          status?: 'pending' | 'succeeded' | 'failed' | 'refunded' | 'disputed'
+          currency?: string
+          description?: string | null
+          metadata?: any
+          time_entry_id?: string | null
+          is_deposit?: boolean
+          is_final_payment?: boolean
+          aggregation_period_start?: string | null
+          aggregation_period_end?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          transaction_type?: 'customer_payment' | 'worker_payout' | 'refund' | 'chargeback'
+          stripe_payment_intent_id?: string | null
+          stripe_transfer_id?: string | null
+          stripe_charge_id?: string | null
+          customer_id?: string | null
+          appointment_id?: string | null
+          worker_id?: string | null
+          gross_amount?: number
+          platform_fee?: number
+          stripe_fee?: number
+          net_amount?: number
+          status?: 'pending' | 'succeeded' | 'failed' | 'refunded' | 'disputed'
+          currency?: string
+          description?: string | null
+          metadata?: any
+          time_entry_id?: string | null
+          is_deposit?: boolean
+          is_final_payment?: boolean
+          aggregation_period_start?: string | null
+          aggregation_period_end?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      payment_methods: {
+        Row: {
+          id: string
+          company_id: string
+          customer_id: string | null
+          worker_id: string | null
+          stripe_payment_method_id: string
+          type: 'card' | 'bank_account' | 'debit_card'
+          is_default: boolean
+          metadata: any
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          customer_id?: string | null
+          worker_id?: string | null
+          stripe_payment_method_id: string
+          type: 'card' | 'bank_account' | 'debit_card'
+          is_default?: boolean
+          metadata?: any
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          customer_id?: string | null
+          worker_id?: string | null
+          stripe_payment_method_id?: string
+          type?: 'card' | 'bank_account' | 'debit_card'
+          is_default?: boolean
+          metadata?: any
+          created_at?: string
+        }
+      }
+      payout_schedules: {
+        Row: {
+          id: string
+          company_id: string
+          worker_id: string
+          schedule_type: 'weekly' | 'bi_weekly' | 'monthly'
+          day_of_week: number | null
+          day_of_month: number | null
+          is_active: boolean
+          next_payout_date: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          worker_id: string
+          schedule_type: 'weekly' | 'bi_weekly' | 'monthly'
+          day_of_week?: number | null
+          day_of_month?: number | null
+          is_active?: boolean
+          next_payout_date?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          worker_id?: string
+          schedule_type?: 'weekly' | 'bi_weekly' | 'monthly'
+          day_of_week?: number | null
+          day_of_month?: number | null
+          is_active?: boolean
+          next_payout_date?: string | null
+          created_at?: string
+        }
+      }
+      time_entries: {
+        Row: {
+          id: string
+          company_id: string
+          scheduled_appointment_id: string
+          worker_id: string
+          clock_in_time: string
+          clock_out_time: string | null
+          hours_worked: number | null
+          hourly_rate_at_time: number | null
+          wage_type_at_time: string | null
+          total_amount: number | null
+          payment_status: 'pending' | 'paid' | 'scheduled'
+          payment_transaction_id: string | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          scheduled_appointment_id: string
+          worker_id: string
+          clock_in_time: string
+          clock_out_time?: string | null
+          hours_worked?: number | null
+          hourly_rate_at_time?: number | null
+          wage_type_at_time?: string | null
+          total_amount?: number | null
+          payment_status?: 'pending' | 'paid' | 'scheduled'
+          payment_transaction_id?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          scheduled_appointment_id?: string
+          worker_id?: string
+          clock_in_time?: string
+          clock_out_time?: string | null
+          hours_worked?: number | null
+          hourly_rate_at_time?: number | null
+          wage_type_at_time?: string | null
+          total_amount?: number | null
+          payment_status?: 'pending' | 'paid' | 'scheduled'
+          payment_transaction_id?: string | null
+          notes?: string | null
           created_at?: string
           updated_at?: string
         }

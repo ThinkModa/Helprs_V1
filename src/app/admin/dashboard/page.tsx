@@ -47,6 +47,7 @@ import { InsightsChat } from '@/components/insights/InsightsChat'
 import { TeamsManagement } from '@/components/teams/TeamsManagement'
 import { CustomersManagement } from '@/components/customers/CustomersManagement'
 import { CalendarView } from '@/components/scheduling/CalendarView'
+import { PaymentManagement } from '@/components/payments/PaymentManagement'
 
 export default function AdminDashboardPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -714,18 +715,21 @@ export default function AdminDashboardPage() {
     )
   }
 
-  const renderCompanyPayments = () => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Payment Management</h3>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-          <Plus className="w-4 h-4 mr-2" />
-          Process Payment
-        </Button>
+  const renderCompanyPayments = () => {
+    // For Master Template mode, use a real company ID for demo purposes
+    // In a real scenario, this would be the actual company being previewed
+    const currentCompanyId = demoCompany === 'Master Template' 
+      ? 'the-home-team' // Use The Home Team as the demo company for Master Template
+      : demoCompany === 'The Home Team' 
+        ? 'the-home-team' 
+        : 'primetime-moving'
+    
+    return (
+      <div className="p-6">
+        <PaymentManagement companyId={currentCompanyId} />
       </div>
-      <p className="text-gray-600">Payment management interface coming soon...</p>
-    </div>
-  )
+    )
+  }
 
   const renderCompanyReports = () => (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">

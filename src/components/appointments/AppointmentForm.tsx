@@ -25,7 +25,10 @@ export function AppointmentForm({ appointment, onSubmit, onCancel }: Appointment
     duration: '',
     is_private: false,
     selected_calendars: [] as string[],
-    notes: ''
+    notes: '',
+    requires_deposit: false,
+    deposit_amount: '',
+    deposit_type: 'fixed'
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -74,11 +77,14 @@ export function AppointmentForm({ appointment, onSubmit, onCancel }: Appointment
         priority: appointment.priority,
         estimated_cost: appointment.estimated_cost?.toString() || '',
         currency: appointment.currency,
-        pricing_type: appointment.metadata?.pricing_type || 'fixed',
+        pricing_type: appointment.pricing_type || 'fixed',
         duration: appointment.metadata?.duration || '',
         is_private: appointment.metadata?.is_private || false,
         selected_calendars: appointment.calendar_names || [],
-        notes: appointment.notes || ''
+        notes: appointment.notes || '',
+        requires_deposit: appointment.requires_deposit || false,
+        deposit_amount: appointment.deposit_amount?.toString() || '',
+        deposit_type: appointment.deposit_type || 'fixed'
       })
     }
   }, [appointment])
@@ -111,8 +117,8 @@ export function AppointmentForm({ appointment, onSubmit, onCancel }: Appointment
       const submitData = {
         ...formData,
         estimated_cost: formData.estimated_cost ? Number(formData.estimated_cost) : null,
+        deposit_amount: formData.deposit_amount ? Number(formData.deposit_amount) : null,
         metadata: { 
-          pricing_type: formData.pricing_type,
           duration: formData.duration,
           is_private: formData.is_private
         },
@@ -339,6 +345,83 @@ export function AppointmentForm({ appointment, onSubmit, onCancel }: Appointment
               {errors.estimated_cost && (
                 <p className="mt-1 text-sm text-red-600">{errors.estimated_cost}</p>
               )}
+            </div>
+
+            {/* Deposit Settings */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <h4 className="text-md font-medium text-gray-900 mb-4">Deposit Settings</h4>
+              
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="requires_deposit"
+                    checked={formData.requires_deposit}
+                    onChange={(e) => handleInputChange('requires_deposit', e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="requires_deposit" className="ml-2 text-sm font-medium text-gray-700">
+                    Require deposit for this service
+                  </label>
+                </div>
+
+                {formData.requires_deposit && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Deposit Type
+                      </label>
+                      <select
+                        value={formData.deposit_type}
+                        onChange={(e) => handleInputChange('deposit_type', e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="fixed">Fixed Amount</option>
+                        <option value="percentage">Percentage of Total</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {formData.deposit_type === 'percentage' ? 'Deposit Percentage' : 'Deposit Amount'}
+                      </label>
+                      <div className="flex">
+                        {formData.deposit_type === 'percentage' ? (
+                          <>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={formData.deposit_amount}
+                              onChange={(e) => handleInputChange('deposit_amount', e.target.value)}
+                              placeholder="0"
+                              className="rounded-r-none"
+                            />
+                            <span className="px-3 py-2 bg-gray-50 border border-l-0 border-gray-300 rounded-r-lg text-gray-500">
+                              %
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="px-3 py-2 bg-gray-50 border border-r-0 border-gray-300 rounded-l-lg text-gray-500">
+                              $
+                            </span>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={formData.deposit_amount}
+                              onChange={(e) => handleInputChange('deposit_amount', e.target.value)}
+                              placeholder="0.00"
+                              className="rounded-l-none"
+                            />
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </Card>
