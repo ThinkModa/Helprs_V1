@@ -24,6 +24,8 @@ export interface Database {
           timezone: string
           is_active: boolean
           is_master_account: boolean
+          is_test_company: boolean
+          is_internal_company: boolean
           created_at: string
           updated_at: string
           created_by: string | null
@@ -51,6 +53,8 @@ export interface Database {
           timezone?: string
           is_active?: boolean
           is_master_account?: boolean
+          is_test_company?: boolean
+          is_internal_company?: boolean
           created_at?: string
           updated_at?: string
           created_by?: string | null
@@ -78,6 +82,8 @@ export interface Database {
           timezone?: string
           is_active?: boolean
           is_master_account?: boolean
+          is_test_company?: boolean
+          is_internal_company?: boolean
           created_at?: string
           updated_at?: string
           created_by?: string | null
@@ -237,6 +243,8 @@ export interface Database {
           configuration: any
           enabled_at: string | null
           enabled_by: string | null
+          rollout_stage: string | null
+          rollout_percentage: number
           created_at: string
           updated_at: string
         }
@@ -248,6 +256,8 @@ export interface Database {
           configuration?: any
           enabled_at?: string | null
           enabled_by?: string | null
+          rollout_stage?: string | null
+          rollout_percentage?: number
           created_at?: string
           updated_at?: string
         }
@@ -259,6 +269,8 @@ export interface Database {
           configuration?: any
           enabled_at?: string | null
           enabled_by?: string | null
+          rollout_stage?: string | null
+          rollout_percentage?: number
           created_at?: string
           updated_at?: string
         }

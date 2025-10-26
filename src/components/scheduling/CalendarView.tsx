@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SchedulingService, ScheduledAppointmentWithDetails } from '@/lib/database/scheduling'
+import { PaymentService } from '@/lib/database/payments'
 import { createClient } from '@/lib/supabase/client'
 import { CreateAppointmentModal } from './CreateAppointmentModal'
+import { PaymentIndicatorCompact } from './PaymentIndicator'
 
 interface CalendarViewProps {
   companyId: string
@@ -20,10 +22,13 @@ export function CalendarView({ companyId }: CalendarViewProps) {
   const [appointments, setAppointments] = useState<ScheduledAppointmentWithDetails[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [hasCardOnFile, setHasCardOnFile] = useState(false)
   const [schedulingService] = useState(() => new SchedulingService(createClient()))
+  const [paymentService] = useState(() => new PaymentService(createClient()))
 
   useEffect(() => {
     loadAppointments()
+    loadPaymentSettings()
   }, [companyId, currentDate, viewMode])
 
   const loadAppointments = async () => {
@@ -42,6 +47,16 @@ export function CalendarView({ companyId }: CalendarViewProps) {
       console.error('Error loading appointments:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadPaymentSettings = async () => {
+    try {
+      const paymentSettings = await paymentService.getCompanyPaymentSettings(companyId)
+      setHasCardOnFile(!!paymentSettings?.stripe_customer_id)
+    } catch (error) {
+      console.error('Error loading payment settings:', error)
+      setHasCardOnFile(false)
     }
   }
 
@@ -199,7 +214,17 @@ export function CalendarView({ companyId }: CalendarViewProps) {
                     className="text-xs p-1 rounded bg-blue-100 text-blue-800 truncate"
                     title={`${appointment.title} - ${formatTime(appointment.start_time)}`}
                   >
-                    {formatTime(appointment.start_time)} {appointment.title}
+                    <div className="flex items-center justify-between">
+                      <span className="truncate">
+                        {formatTime(appointment.start_time)} {appointment.title}
+                      </span>
+                      <PaymentIndicatorCompact
+                        depositPaid={appointment.deposit_paid}
+                        finalPaymentStatus={appointment.final_payment_status}
+                        hasCardOnFile={hasCardOnFile}
+                        className="ml-1 flex-shrink-0"
+                      />
+                    </div>
                   </div>
                 ))}
                 {dayAppointments.length > 2 && (
@@ -270,7 +295,15 @@ export function CalendarView({ companyId }: CalendarViewProps) {
                               key={appointment.id}
                               className="text-xs p-1 bg-blue-100 text-blue-800 rounded m-1"
                             >
-                              {appointment.title}
+                              <div className="flex items-center justify-between">
+                                <span className="truncate">{appointment.title}</span>
+                                <PaymentIndicatorCompact
+                                  depositPaid={appointment.deposit_paid}
+                                  finalPaymentStatus={appointment.final_payment_status}
+                                  hasCardOnFile={hasCardOnFile}
+                                  className="ml-1 flex-shrink-0"
+                                />
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -333,10 +366,15 @@ export function CalendarView({ companyId }: CalendarViewProps) {
                         </div>
                       </div>
                     </div>
-                    <div className="ml-4">
+                    <div className="ml-4 flex items-center space-x-2">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
                         {appointment.status}
                       </span>
+                      <PaymentIndicatorCompact
+                        depositPaid={appointment.deposit_paid}
+                        finalPaymentStatus={appointment.final_payment_status}
+                        hasCardOnFile={hasCardOnFile}
+                      />
                     </div>
                   </div>
                 </div>
@@ -397,6 +435,25 @@ export function CalendarView({ companyId }: CalendarViewProps) {
             >
               Day
             </Button>
+          </div>
+          {/* Payment Legend */}
+          <div className="flex items-center space-x-4 text-xs text-gray-600 ml-4 pl-4 border-l border-gray-300">
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <span>Paid</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+              <span>Pending</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 rounded-full bg-red-500"></div>
+              <span>Disputed</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+              <span>Approved</span>
+            </div>
           </div>
         </div>
         

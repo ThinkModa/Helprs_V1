@@ -38,7 +38,9 @@ import {
   CalendarCheck,
   FileSpreadsheet,
   DollarSign,
-  MessageSquare
+  MessageSquare,
+  AlertTriangle,
+  Flag
 } from 'lucide-react'
 import { CalendarsManagement } from '@/components/calendars/CalendarsManagement'
 import { AppointmentsManagement } from '@/components/appointments/AppointmentsManagement'
@@ -47,6 +49,7 @@ import { InsightsChat } from '@/components/insights/InsightsChat'
 import { TeamsManagement } from '@/components/teams/TeamsManagement'
 import { CustomersManagement } from '@/components/customers/CustomersManagement'
 import { CalendarView } from '@/components/scheduling/CalendarView'
+import FeatureFlagsManagement from '@/components/feature-flags/FeatureFlagsManagement'
 import { PaymentManagement } from '@/components/payments/PaymentManagement'
 
 export default function AdminDashboardPage() {
@@ -55,9 +58,11 @@ export default function AdminDashboardPage() {
   const [previewCompany, setPreviewCompany] = useState(null)
   const [demoMode, setDemoMode] = useState(false)
   const [demoCompany, setDemoCompany] = useState(null)
+  const [isSigningOut, setIsSigningOut] = useState(false)
   const { user, loading, signOut } = useAuth()
   const router = useRouter()
 
+  // Handle redirect to login when user is not authenticated
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login')
@@ -80,7 +85,7 @@ export default function AdminDashboardPage() {
     { id: 'companies', label: 'Companies', icon: Building2 },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'preview', label: 'Company Preview', icon: Monitor },
-    { id: 'features', label: 'Feature Flags', icon: Rocket },
+    { id: 'features', label: 'Feature Flags', icon: Flag },
     { id: 'analytics', label: 'Analytics', icon: TrendingUp },
     { id: 'insights', label: 'Insights', icon: MessageSquare },
     { id: 'billing', label: 'Billing', icon: CreditCard },
@@ -144,6 +149,32 @@ export default function AdminDashboardPage() {
       },
       recentJobs: [],
       teamMembers: []
+    },
+    'Helprs Test Company': {
+      id: 'helprs-test',
+      name: 'Helprs Test Company',
+      industry: 'Software/Technology',
+      location: 'San Francisco, CA',
+      phone: '(415) 555-0100',
+      email: 'admin@helprstest.com',
+      website: 'www.helprs.com',
+      employees: 11,
+      established: '2024',
+      logo: null,
+      isInternalCompany: true,
+      stats: {
+        activeJobs: 5,
+        completedJobs: 23,
+        totalRevenue: '$12,450',
+        avgRating: 4.9
+      },
+      recentJobs: [
+        { id: 1, title: 'Internal Feature Testing', client: 'Helprs Team', date: '2024-02-20', status: 'In Progress', value: '$0' },
+        { id: 2, title: 'QA Validation', client: 'Helprs Team', date: '2024-02-19', status: 'Completed', value: '$0' }
+      ],
+      teamMembers: [
+        { id: 1, name: 'Helprs Admin', role: 'Admin', status: 'Active', lastActive: '1 hour ago' }
+      ]
     },
     'The Home Team': {
       id: 1,
@@ -407,45 +438,8 @@ export default function AdminDashboardPage() {
   )
 
   const renderFeatureFlags = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">Feature Flags</h3>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Feature Flag
-        </Button>
-        </div>
-        
-        <div className="space-y-4">
-          {featureFlags.map((flag) => (
-            <div key={flag.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-              <div className="flex-1">
-                <div className="flex items-center space-x-3">
-                  <h4 className="text-sm font-medium text-gray-900">{flag.name}</h4>
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    flag.enabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {flag.enabled ? 'Enabled' : 'Disabled'}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-500 mt-1">{flag.description}</p>
-                <p className="text-xs text-gray-400 mt-1">Used by {flag.companies} companies</p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button className="text-blue-600 hover:text-blue-900 text-sm flex items-center">
-                  <Settings className="w-4 h-4 mr-1" />
-                  Configure
-                </button>
-                <button className="text-gray-600 hover:text-gray-900 text-sm flex items-center">
-                  <Edit className="w-4 h-4 mr-1" />
-                  Edit
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className="p-6">
+      <FeatureFlagsManagement />
     </div>
   )
 
@@ -1124,15 +1118,58 @@ export default function AdminDashboardPage() {
                 <p className="text-xs text-gray-500">{user?.email}</p>
               </div>
               <Button 
-                onClick={signOut}
+                onClick={async () => {
+                  setIsSigningOut(true)
+                  await signOut()
+                  // The useEffect will handle redirecting to login
+                }}
                 variant="outline"
-                className="text-gray-600 hover:text-gray-800 border-gray-300 hover:border-gray-400"
+                disabled={isSigningOut}
+                className="text-gray-600 hover:text-gray-800 border-gray-300 hover:border-gray-400 disabled:opacity-50"
               >
-                Sign Out
+                {isSigningOut ? 'Signing Out...' : 'Sign Out'}
               </Button>
             </div>
           </div>
         </header>
+
+        {/* Data Mode Indicators */}
+        {demoMode && (
+          <div className="px-6 pt-4">
+            {demoCompany === 'Master Template' && (
+              <div className="bg-purple-100 border-l-4 border-purple-500 p-3 mb-4">
+                <div className="flex items-center">
+                  <Eye className="h-5 w-5 text-purple-600 mr-2" />
+                  <p className="text-purple-800 text-sm font-medium">
+                    DEMO MODE: Mock data for UI/UX design
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {demoCompany === 'Helprs Test Company' && (
+              <div className="bg-yellow-100 border-l-4 border-yellow-500 p-3 mb-4">
+                <div className="flex items-center">
+                  <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2" />
+                  <p className="text-yellow-800 text-sm font-medium">
+                    TEST MODE: Real Helprs internal data - Local environment
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {(demoCompany === 'The Home Team' || demoCompany === 'Primetime Moving') && (
+              <div className="bg-blue-100 border-l-4 border-blue-500 p-3 mb-4">
+                <div className="flex items-center">
+                  <Building2 className="h-5 w-5 text-blue-600 mr-2" />
+                  <p className="text-blue-800 text-sm font-medium">
+                    CLIENT MODE: {demoCompany} - Real client data
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Content Area */}
         <main className="flex-1 p-6">

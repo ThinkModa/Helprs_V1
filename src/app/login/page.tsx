@@ -19,10 +19,17 @@ export default function LoginPage() {
   const quickAccessAccounts = {
     superAdmin: {
       email: 'admin@helprs.com',
-      password: 'admin123',
+      password: 'superadmin123',
       label: 'Super Admin',
       icon: '👑',
       description: 'Platform Administrator'
+    },
+    helprsTest: {
+      email: 'admin@helprstest.com',
+      password: 'helprstest123',
+      label: 'Helprs Test Company',
+      icon: '🧪',
+      description: 'Internal Testing'
     },
     homeTeam: {
       email: 'admin@thehometeam.com',
@@ -186,6 +193,21 @@ export default function LoginPage() {
                   <div className="text-left flex-1">
                     <p className="text-sm font-medium text-gray-900">{quickAccessAccounts.superAdmin.label}</p>
                     <p className="text-xs text-gray-600">{quickAccessAccounts.superAdmin.description}</p>
+                  </div>
+                </div>
+              </button>
+
+              {/* Helprs Test Company */}
+              <button
+                onClick={() => handleQuickAccess(quickAccessAccounts.helprsTest)}
+                disabled={loading}
+                className="w-full p-3 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg hover:from-yellow-100 hover:to-orange-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-lg">{quickAccessAccounts.helprsTest.icon}</span>
+                  <div className="text-left flex-1">
+                    <p className="text-sm font-medium text-gray-900">{quickAccessAccounts.helprsTest.label}</p>
+                    <p className="text-xs text-gray-600">{quickAccessAccounts.helprsTest.description}</p>
                   </div>
                 </div>
               </button>

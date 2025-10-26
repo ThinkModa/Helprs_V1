@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card'
 import { PaymentService } from '@/lib/database/payments'
 import { TimeTrackingService, TimeEntryWithDetails } from '@/lib/database/time-tracking'
 import { createClient } from '@/lib/supabase/client'
+import { PaymentIndicator } from './PaymentIndicator'
 
 interface PaymentApprovalViewProps {
   companyId: string
@@ -261,7 +262,16 @@ export function PaymentApprovalView({ companyId, appointmentId }: PaymentApprova
 
                 {/* Customer Info */}
                 <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                  <h4 className="font-medium text-gray-900 mb-2">Customer</h4>
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-gray-900">Customer</h4>
+                    <PaymentIndicator
+                      depositPaid={appointment.deposit_paid}
+                      finalPaymentStatus={appointment.final_payment_status}
+                      hasCardOnFile={false} // TODO: Get from company payment settings
+                      depositAmount={appointment.estimated_cost ? appointment.estimated_cost * 0.2 : undefined}
+                      finalAmount={totalCost}
+                    />
+                  </div>
                   <p className="text-gray-700">
                     {appointment.customers.first_name} {appointment.customers.last_name}
                   </p>

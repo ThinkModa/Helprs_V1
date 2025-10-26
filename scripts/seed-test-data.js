@@ -216,10 +216,49 @@ async function seedTestData() {
   try {
     // 1. Create Super Admin
     console.log('\n👑 Creating Super Admin account...');
-    const superAdminAuth = await createAuthUser('admin@helprs.com', 'admin123');
+    const superAdminAuth = await createAuthUser('admin@helprs.com', 'superadmin123');
     console.log(`✅ Super Admin auth created: ${superAdminAuth.email}`);
 
-    // 2. Create The Home Team Company & Admin
+    // 2. Create Helprs Test Company & Admin (Internal Testing)
+    console.log('\n🧪 Creating Helprs Test Company (Internal Testing)...');
+    const helprsTestAuth = await createAuthUser('admin@helprstest.com', 'helprstest123');
+    console.log(`✅ Helprs Test auth created: ${helprsTestAuth.email}`);
+    
+    const helprsTestCompany = await createCompany(
+      'Helprs Test Company',
+      'helprs-test',
+      'Software/Technology',
+      '11-25',
+      'enterprise',
+      helprsTestAuth.id
+    );
+    console.log(`✅ Helprs Test Company created: ${helprsTestCompany.name}`);
+
+    // Mark as internal company
+    await supabase
+      .from('companies')
+      .update({ is_internal_company: true })
+      .eq('id', helprsTestCompany.id);
+    console.log('✅ Marked as internal company');
+
+    await createUserProfile(
+      helprsTestAuth.id,
+      helprsTestAuth.email,
+      'Helprs',
+      'Admin',
+      'admin',
+      helprsTestCompany.id
+    );
+    console.log('✅ Helprs Test profile created');
+
+    // Create comprehensive test data for Helprs Test Company
+    console.log('\n📅 Creating calendars for Helprs Test Company...');
+    await createSampleCalendars(helprsTestCompany.id);
+    
+    console.log('\n📝 Creating forms for Helprs Test Company...');
+    await createSampleForms(helprsTestCompany.id);
+
+    // 3. Create The Home Team Company & Admin
     console.log('\n🏠 Creating The Home Team company...');
     const homeTeamCompany = await createCompany(
       'The Home Team',
@@ -244,7 +283,7 @@ async function seedTestData() {
     );
     console.log('✅ The Home Team profile created');
 
-    // 3. Create Primetime Moving Company & Admin
+    // 4. Create Primetime Moving Company & Admin
     console.log('\n🚛 Creating Primetime Moving company...');
     const primetimeMovingCompany = await createCompany(
       'Primetime Moving',
@@ -269,7 +308,7 @@ async function seedTestData() {
     );
     console.log('✅ Primetime Moving profile created');
 
-    // 4. Create Super Admin profile
+    // 5. Create Super Admin profile
     console.log('\n👑 Creating Super Admin profile...');
     await createUserProfile(
       superAdminAuth.id,
@@ -280,17 +319,18 @@ async function seedTestData() {
     );
     console.log('✅ Super Admin profile created');
 
-    // 5. Create sample calendars for The Home Team
+    // 6. Create sample calendars for The Home Team
     console.log('\n📅 Creating sample calendars for The Home Team...');
     await createSampleCalendars(homeTeamCompany.id);
 
-    // 6. Create sample forms for The Home Team
+    // 7. Create sample forms for The Home Team
     console.log('\n📝 Creating sample forms for The Home Team...');
     await createSampleForms(homeTeamCompany.id);
 
     console.log('\n🎉 Test data seeding complete!');
     console.log('\n📋 Quick Access Accounts:');
-    console.log('👑 Super Admin: admin@helprs.com / admin123');
+    console.log('👑 Super Admin: admin@helprs.com / superadmin123');
+    console.log('🧪 Helprs Test Company: admin@helprstest.com / helprstest123');
     console.log('🏠 The Home Team: admin@thehometeam.com / hometeam123');
     console.log('🚛 Primetime Moving: admin@primetimemoving.com / primetime123');
 
