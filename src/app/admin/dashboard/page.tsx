@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { 
   BarChart3, 
   Building2, 
@@ -59,6 +60,81 @@ import AdminSettings from '@/components/settings/AdminSettings'
 import CompanyReports from '@/components/company/CompanyReports'
 import CompanySettings from '@/components/company/CompanySettings'
 
+function ActivationWizardModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [step, setStep] = useState(1)
+  const [pages, setPages] = useState<{ [key: string]: boolean }>({ Billing: false, Reports: false, Settings: false, Analytics: false })
+  const [features, setFeatures] = useState<{ [key: string]: boolean }>({ FeatureA: false, FeatureB: false, FeatureC: false })
+  const [target, setTarget] = useState('helprs-test')
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+        <button className="absolute right-3 top-3 text-gray-400 hover:text-gray-600" onClick={onClose}>✕</button>
+        <h2 className="text-xl font-bold mb-2">Activate Template</h2>
+        <p className="text-gray-600 mb-4 text-sm">Promote Master Template features/pages to one or more companies</p>
+        <div className="mb-6">
+          <div className="flex items-center mb-4">
+            <div className={`mr-2 rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold ${step>=1?'bg-blue-600 text-white':'bg-gray-200 text-gray-600'}`}>1</div>
+            <span className={`mr-6 ${step>=1?'text-blue-900':'text-gray-400'}`}>Select Pages</span>
+            <div className={`mr-2 rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold ${step>=2?'bg-blue-600 text-white':'bg-gray-200 text-gray-600'}`}>2</div>
+            <span className={`mr-6 ${step>=2?'text-blue-900':'text-gray-400'}`}>Select Features</span>
+            <div className={`mr-2 rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold ${step>=3?'bg-blue-600 text-white':'bg-gray-200 text-gray-600'}`}>3</div>
+            <span className={`${step>=3?'text-blue-900':'text-gray-400'}`}>Choose Target</span>
+          </div>
+          {/* Step content below */}
+          {step === 1 && (
+            <div>
+              <label className="block font-semibold mb-2">Pages/Modules</label>
+              {Object.keys(pages).map((page) => (
+                <label key={page} className="flex items-center space-x-2 mb-2">
+                  <input type="checkbox" className="h-4 w-4" checked={pages[page]} onChange={e => setPages({ ...pages, [page]: e.target.checked })}/>
+                  <span>{page}</span>
+                </label>
+              ))}
+              <Button className="mt-4" onClick={() => setStep(2)} disabled={!Object.values(pages).some(val=>val)}>Next</Button>
+            </div>
+          )}
+          {step === 2 && (
+            <div>
+              <label className="block font-semibold mb-2">Features for selected modules (placeholder)</label>
+              {Object.keys(features).map((feature) => (
+                <label key={feature} className="flex items-center space-x-2 mb-2">
+                  <input type="checkbox" className="h-4 w-4" checked={features[feature]} onChange={e => setFeatures({ ...features, [feature]: e.target.checked })}/>
+                  <span>{feature}</span>
+                </label>
+              ))}
+              <div className="flex justify-between mt-4">
+                <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
+                <Button onClick={() => setStep(3)} disabled={!Object.values(features).some(f=>f)}>Next</Button>
+              </div>
+            </div>
+          )}
+          {step === 3 && (
+            <div>
+              <label className="block font-semibold mb-2">Choose target company or tier</label>
+              <div className="flex flex-col gap-2">
+                <label className="flex items-center space-x-2">
+                  <input type="radio" name="target" value="helprs-test" checked={target==='helprs-test'} onChange={()=>setTarget('helprs-test')} />
+                  <span>Helprs Test Company</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input type="radio" name="target" value="all" checked={target==='all'} onChange={()=>setTarget('all')} />
+                  <span>All Companies (all tiers)</span>
+                </label>
+              </div>
+              <div className="flex justify-between mt-4">
+                <Button variant="outline" onClick={() => setStep(2)}>Back</Button>
+                <Button onClick={() => { onClose(); setStep(1) }}>Activate</Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminDashboardPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeSection, setActiveSection] = useState('overview')
@@ -66,6 +142,7 @@ export default function AdminDashboardPage() {
   const [demoMode, setDemoMode] = useState(false)
   const [demoCompany, setDemoCompany] = useState(null)
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const [showActivateWizard, setShowActivateWizard] = useState(false)
   const { user, loading, signOut } = useAuth()
   const router = useRouter()
 
@@ -1055,6 +1132,9 @@ export default function AdminDashboardPage() {
     }
   }
 
+  // Floating activate button for Master Template, Demo Mode ONLY
+  const showMasterActivate = demoMode && demoCompany === 'Master Template'
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
@@ -1221,6 +1301,17 @@ export default function AdminDashboardPage() {
         <main className="flex-1 p-6">
           {renderContent()}
         </main>
+        {showMasterActivate && (
+          <button
+            className="fixed z-50 bottom-8 right-8 rounded-full shadow-lg bg-purple-700 hover:bg-purple-800 text-white px-8 py-4 text-lg font-semibold flex items-center space-x-2"
+            onClick={() => setShowActivateWizard(true)}
+            style={{ boxShadow: '0px 6px 32px rgba(80,48,185,0.14)' }}
+          >
+            <Rocket className="w-5 h-5 mr-2" />
+            Push to Live
+          </button>
+        )}
+        <ActivationWizardModal open={showActivateWizard} onClose={() => setShowActivateWizard(false)} />
       </div>
     </div>
   )

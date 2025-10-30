@@ -46,15 +46,21 @@ npm install
 cp env.example .env.local
 ```
 
-Update `.env.local` with your Supabase credentials:
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key_here
+**Update your `.env.local` file with your real Supabase credentials:**
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-actual-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-if-needed
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_APP_NAME=Helprs
 NODE_ENV=development
 ```
+
+To obtain these credentials:
+1. Go to your Supabase project dashboard (https://app.supabase.com/project/YOUR_PROJECT_ID)
+2. Find Project URL (use for `NEXT_PUBLIC_SUPABASE_URL`) and anon public key (use for `NEXT_PUBLIC_SUPABASE_ANON_KEY`) in Settings ➔ API.
+3. Replace the placeholder values above with your **real project**'s credentials.
 
 ### 3. Set up Database Schema
 
