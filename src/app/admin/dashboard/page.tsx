@@ -51,6 +51,13 @@ import { CustomersManagement } from '@/components/customers/CustomersManagement'
 import { CalendarView } from '@/components/scheduling/CalendarView'
 import FeatureFlagsManagement from '@/components/feature-flags/FeatureFlagsManagement'
 import { PaymentManagement } from '@/components/payments/PaymentManagement'
+import AnalyticsDashboard from '@/components/analytics/AnalyticsDashboard'
+import AdminBilling from '@/components/billing/AdminBilling'
+import CompanyBilling from '@/components/billing/CompanyBilling'
+import AdminSupport from '@/components/support/AdminSupport'
+import AdminSettings from '@/components/settings/AdminSettings'
+import CompanyReports from '@/components/company/CompanyReports'
+import CompanySettings from '@/components/company/CompanySettings'
 
 export default function AdminDashboardPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -102,6 +109,7 @@ export default function AdminDashboardPage() {
     { id: 'team', label: 'Team', icon: UserCheck },
     { id: 'customers', label: 'Customers', icon: Users },
     { id: 'payments', label: 'Payments', icon: DollarSign },
+    { id: 'billing', label: 'Billing', icon: CreditCard },
     { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'insights', label: 'Insights', icon: MessageSquare },
     { id: 'settings', label: 'Settings', icon: Settings }
@@ -966,8 +974,18 @@ export default function AdminDashboardPage() {
           return renderCompanyCustomers()
         case 'payments':
           return renderCompanyPayments()
+        case 'billing':
+          return (
+            <div className="p-6">
+              <CompanyBilling />
+            </div>
+          )
         case 'reports':
-          return renderCompanyReports()
+          return (
+            <div className="p-6">
+              <CompanyReports />
+            </div>
+          )
         case 'insights':
           return (
             <div className="h-full">
@@ -975,7 +993,11 @@ export default function AdminDashboardPage() {
             </div>
           )
         case 'settings':
-          return renderCompanySettings()
+          return (
+            <div className="p-6">
+              <CompanySettings />
+            </div>
+          )
         default:
           return renderCompanyDashboard()
       }
@@ -993,6 +1015,30 @@ export default function AdminDashboardPage() {
         return renderCompanyPreview()
       case 'features':
         return renderFeatureFlags()
+      case 'analytics':
+        return (
+          <div className="h-full">
+            <AnalyticsDashboard />
+          </div>
+        )
+      case 'billing':
+        return (
+          <div className="h-full">
+            <AdminBilling />
+          </div>
+        )
+      case 'support':
+        return (
+          <div className="h-full">
+            <AdminSupport />
+          </div>
+        )
+      case 'settings':
+        return (
+          <div className="h-full">
+            <AdminSettings />
+          </div>
+        )
       case 'insights':
         return (
           <div className="h-full">
