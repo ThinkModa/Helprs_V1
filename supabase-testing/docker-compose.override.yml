@@ -1,0 +1,24 @@
+# Docker Compose Override for Testing Instance
+# This file modifies ports when used with Supabase CLI
+# Note: Supabase CLI generates its own docker-compose internally
+# This override may not work directly - see README for manual setup
+
+version: '3.8'
+
+services:
+  kong:
+    ports:
+      - "54331:8000"
+  db:
+    ports:
+      - "54332:5432"
+  studio:
+    ports:
+      - "54333:3000"
+  inbucket:
+    ports:
+      - "54334:9000"
+    environment:
+      - SMTP_PORT=54335
+      - POP3_PORT=54336
+

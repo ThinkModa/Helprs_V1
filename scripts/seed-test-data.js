@@ -1,7 +1,21 @@
 #!/usr/bin/env node
 
 const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config({ path: '.env.local' });
+const path = require('path');
+
+// Load environment variables based on NODE_ENV
+const nodeEnv = process.env.NODE_ENV || 'development';
+let envPath = '.env.local';
+
+if (nodeEnv === 'test') {
+  envPath = '.env.test.local';
+} else if (nodeEnv === 'development') {
+  envPath = '.env.development.local';
+}
+
+// Try loading the environment-specific file, fallback to .env.local
+require('dotenv').config({ path: envPath });
+require('dotenv').config({ path: '.env.local' }); // Fallback if env-specific doesn't exist
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

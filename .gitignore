@@ -16,6 +16,7 @@ dist/
 .env.local
 .env.development.local
 .env.test.local
+.env.staging.local
 .env.production.local
 
 # Vercel
@@ -102,3 +103,5 @@ temp/
 
 # Supabase
 .supabase/
+supabase-testing/.supabase/
+# Keep supabase-testing/config.toml but ignore runtime data

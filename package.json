@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:development": "NODE_ENV=development next dev --turbopack -p 3000",
+    "dev:testing": "NODE_ENV=test next dev --turbopack -p 3001",
+    "dev:compare": "concurrently \"npm run dev:development\" \"npm run dev:testing\"",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
@@ -38,6 +41,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^9.2.1",
     "eslint": "^9",
     "eslint-config-next": "15.5.6",
     "tailwindcss": "^4",
